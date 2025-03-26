@@ -1,0 +1,279 @@
+\documentclass[a4paper, 11pt]{article}
+
+% Classical useful packages
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}  
+\usepackage[T1]{fontenc} 
+\usepackage{multicol}
+ 
+% For math
+\usepackage{amsmath,amsthm,amsfonts,amssymb}
+\usepackage{upgreek}
+
+% For item blocks
+\usepackage{multienum,enumerate,enumitem}
+
+%Color
+\usepackage{color}
+\usepackage{xcolor}
+
+%hyper link
+\usepackage[backref=page]{hyperref}
+
+  
+\hypersetup{
+	plainpages=false,
+	unicode=true,          % non-Latin characters in Acrobat\u2019s bookmarks
+	pdftoolbar=true,        % show Acrobat\u2019s toolbar?
+	pdfmenubar=true,        % show Acrobat\u2019s menu?
+	pdffitwindow=true,      % page fit to window when opened
+	pdftitle={},    % title
+	pdfauthor={Author},     % author
+	pdfsubject={Subject},   % subject of the document
+	pdfcreator={Creator},   % creator of the document
+	pdfproducer={Producer}, % producer of the document
+	pdfkeywords={keywords}, % list of keywords
+	pdfnewwindow=true,      % links in new window
+	colorlinks=true,       % false: boxed links; true: colored links   %%%%%%%%%%% MODIFIE
+	linkcolor=black,          % color of internal links
+	citecolor=black,        % color of links to bibliography
+	filecolor=cyan,      % color of file links
+	urlcolor=magenta,          % color of external links  
+	urlbordercolor=0 1 1
+	}
+\usepackage{listings} 
+\lstset{ 
+	language=Matlab,
+	basicstyle=\small\ttfamily,
+	columns=fullflexible,
+	breaklines=true,
+	keywordstyle=\color{blue},
+ 	commentstyle=\bfseries\color{green!40!black},
+	frame=single,
+	numbers=left,
+	numberstyle=\small\ttfamily,
+}
+
+%For euro symbol: no needed here
+\usepackage{esint}
+
+%For bitmap style and vectorial police
+\usepackage{lmodern}
+
+%Tikz 
+\usepackage{pgf, tikz}
+
+%For fancy boxes
+\usepackage{fancybox} %\Ovalbox{text}
+
+%Geometry of the doc, limiter of pages 
+\usepackage{geometry}
+\geometry{
+paperwidth=21cm,
+left=2.2cm,
+right=2.2 cm,
+paperheight=29.7cm,
+top=1.9cm,
+height=26.5cm,
+footskip = 1cm
+}
+
+\usepackage{palatino}
+
+\usepackage{graphicx}
+\graphicspath{{./}{./chapters/}{./images/}}
+
+\usepackage{dsfont}
+\usepackage[titletoc]{appendix} % Appendix
+
+\usepackage{mathtools}
+\numberwithin{equation}{section}
+
+%set
+\def\R{\mathbb{R}}
+% \def\A{\mathbb{A}}
+% \def\B{\mathbb{B}}
+\def\N{\mathbb{N}}
+% \def\T{\mathbb{T}}
+% \def\G{\mathbb{G}}
+% \def\D{\mathbb{D}}
+\def\I{\mathbb{I}}
+\def\K{\mathbb{K}}
+\def\C{\mathbb{C}}
+\def\Z{\mathbb{Z}}
+\def\E{\mathbb{E}}
+
+%differential operator
+
+%\def\d{\mathrm{div}}&
+\def\div{\operatorname{div}}
+
+% Hausdorff and Lesbegue measures 
+
+\def\H{\mathcal{H}}
+\def\L{\mathcal{L}}
+
+% Operators 
+\def\X{\mathcal{X}}
+\def\Y{\mathcal{Y}}
+\def\P{\mathcal{P}}
+\def\D{\mathcal{D}}
+\def\Re{\mathcal{R}}
+\def\DR{\mathcal{DR}}
+\def\RD{\mathcal{RD}}
+\def\S{\mathcal{S}}
+\def\A{\mathcal{A}}
+\def\B{\mathcal{B}}
+\def\G{\mathcal{G}}
+\def\T{\mathcal{T}}
+\def\W{\mathcal{W}}
+\def\Co{\mathcal{C}}
+\def\V{\mathcal{V}}
+
+\def\relu{\mathrm{ReLU}}
+
+% Boolean and measures spaces 
+
+\def\B{\mathcal{B}}
+\def\M{\mathcal{M}}
+\def\BV{\mathrm{BV}}
+
+% Fourier transform 
+\def\F{\mathcal{F}}
+
+% asymptotics
+\def\O{\mathcal{O}}
+
+
+% argmin
+
+\DeclareMathOperator*{\argmin}{argmin}
+
+
+
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert} %% requires mathtools
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+
+% for subordinate norm 
+\newcommand{\vertiii}[1]{{\left\vert\kern-0.25ex\left\vert\kern-0.25ex\left\vert #1 
+    \right\vert\kern-0.25ex\right\vert\kern-0.25ex\right\vert}}
+
+\makeatletter
+% boldmath in titles
+\g@addto@macro\bfseries{\boldmath}
+% straight d in integrals
+\renewcommand\d[1]{\mspace{2mu}\mathrm{d}#1\@ifnextchar\d{\mspace{-1mu}}{}}
+% Swap the definition of \abs* and \norm*, so that \abs
+% and \norm resizes the size of the brackets, and the 
+% starred version does not.
+\let\oldabs\abs
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+%
+\let\oldnorm\norm
+\def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
+\makeatother
+
+\def\disp{\displaystyle}
+
+% box for theorem, remark ...
+\newtheorem{thm}{Théorème}[section]
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{lem}[thm]{Lemme}
+\theoremstyle{definition}
+\newtheorem{definition}[thm]{Définition}
+\newtheorem{cor}[thm]{Corollaire}
+
+\newtheorem{claim}[thm]{Claim}
+\theoremstyle{remark}
+\newtheorem{rem}[thm]{Remarque}
+%\newtheorem{remf}[thm]{Remarque}
+\newtheorem{ex}[thm]{Exemple}
+\newtheorem{exo}[thm]{Exercice}
+
+
+% time step 
+\def\dt{\delta_t}
+\usepackage{blindtext}
+
+
+%\renewcommand\thechapter{\Roman{chapter}}
+\renewcommand{\thesection}{\arabic{section}}
+%\renewcommand{\thesection}{\Roman{section}}
+
+\renewcommand\qedsymbol{$\blacksquare$}
+
+
+
+%---- Style de l'entete -----
+\setlength{\parindent}{0cm}
+\newcommand{\entete}
+{
+% Lieu - annee
+%  \noindent {\textbf{Université de la Polynésie Française} \hfill \textbf{Semestre 5 ~ 2023-2024}}\\
+  %  Module
+%  \noindent {L3 Math \hfill UE : Optimisation\\}
+  % Titre
+  \hrule
+  \begin{center} \textbf{\Large Most common Git commands} \\ \textsc{List descrition} \end{center}
+  \hrule
+  \vspace*{0.3cm}
+}
+  
+\begin{document}
+\entete
+
+\section{Initializing a Git Repository}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{git init:} Initialize a new Git repository in the current directory.
+\end{itemize}
+
+\section{Staging and Committing Changes}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{git add <file>:} Stage a file for commit.
+    \item \textbf{git add .:} Stage all changes for commit.
+    \item \textbf{git commit -m "Commit message":} Commit changes with a message.
+\end{itemize}
+
+\section{Checking the Status of a Repository}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{git status:} Show the current status of all files in the repository.
+    \item \textbf{git diff:} Show differences between the working directory and the last commit.
+\end{itemize}
+
+\section{Configuring Git}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{git config user.name "Your Name":} Set your name for commits.
+    \item \textbf{git config user.email "youremail@example.com":} Set your email for commits.
+\end{itemize}
+
+\section{Working with Branches}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{git branch:} List all branches.
+    \item \textbf{git branch <branch name>:} Create a new branch.
+    \item \textbf{git checkout <branche name>:} Switch to a branch.
+    \item \textbf{git merge <branche name>:} Merge a branch into the current branch.
+    \item \textbf{git branch -d <branche name>:} Delete a branch.
+\end{itemize}
+
+\section{Connecting to a Remote Repository}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{git remote add <remote name> <remote url>:} Add a remote repository.
+    \item \textbf{git clone <remote url>:} Clone a remote repository to a local directory.
+    \item \textbf{git pull <remote name> <branche name>:} Get the latest changes from a remote repository.
+    \item \textbf{git push <remote name> <branche name>:} Send local commits to a remote repository.
+\end{itemize}
+
+\section{Getting and Sending Changes}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{git pull:} Get the latest changes from the remote repository.
+    \item \textbf{git push:} Send local commits to the remote repository.
+\end{itemize}
+
+\section{Stashing Changes}
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{git stash:} Save changes made when they're not in a state to commit them to a repository.
+    \item \textbf{git stash pop:} Apply the most recent stash and remove it from the stack.
+\end{itemize}
+
+
+\end{document}
