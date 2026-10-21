@@ -44,6 +44,6 @@ git add . && git commit -m "Nouveau billet : ..." && git push   # publie (l'Acti
 ## Choix techniques, en bref
 
 - **Quarto 1.9** : théorèmes numérotés et renvois (`@thm-...`, `@eq-...`), citations `.bib`, notes et références dans la marge, blog avec RSS, code Python exécuté, Observable JS pour l'interactif.
-- **MathJax 3** (celui que Quarto charge par défaut) avec les macros de `assets/macros.html`.
+- **MathJax 3.2.2 en sortie SVG** (comme le premier aperçu « Carnet de Garry Terii ») avec les macros de `assets/macros.html` : rendu identique sur tous les navigateurs, sans polices web à charger. Réglé dans `_quarto.yml`, option `html-math-method`.
 - **Style** : texte en Literata, interface en IBM Plex Sans, code en JetBrains Mono ; une seule couleur d'accent (bleu-vert lagon) ; mode sombre automatique.
 - **Publication** : GitHub Actions construit le site à chaque `push` sur `main` et le dépose sur GitHub Pages. Les billets en brouillon (`draft: true`) ne sont pas publiés.
