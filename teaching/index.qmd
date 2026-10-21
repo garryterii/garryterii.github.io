@@ -1,0 +1,28 @@
+---
+title: "Enseignement"
+page-layout: article
+---
+
+## Expérience d'enseignement
+
+- Université de la Nouvelle-Calédonie (UNC) : enseignant-chercheur contractuel
+- Université de la Polynésie française (UPF) : ATER
+- Institut de science financière et d'assurances (ISFA) : demi-ATER
+- Université Claude Bernard Lyon 1 (UCBL) : contrat doctoral
+
+## Modules enseignés
+
+- Calcul différentiel (L2 et L3)
+- Géométrie (L3)
+- Théorie de la mesure et intégration (L3)
+- Probabilités avancées (L3)
+- Analyse de Fourier et apprentissage machine
+- Mathématiques générales, parcours adapté (PaRéO)
+
+## Cours actuels à l'UNC
+
+- Méthodologie 4B (L1) : méthodes numériques de recherche de zéros (dichotomie, sécante, point fixe, Newton), avec SageMath
+- Analyse numérique et calcul différentiel à plusieurs variables
+- TREC5 : projets étudiants autour de l'exponentielle de matrice
+
+Certains billets du [carnet](../blog/index.qmd), étiquetés *fondamentaux*, accompagnent ces cours.

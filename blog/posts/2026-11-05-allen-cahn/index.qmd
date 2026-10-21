@@ -1,0 +1,93 @@
+---
+title: "Du champ de phase au flot par courbure moyenne"
+description: "Comment une équation de réaction-diffusion, écrite sur une grille de pixels, fait évoluer une interface à la vitesse de sa courbure."
+date: 2026-11-05
+categories: [travaux, champ de phase, EDP, simulation]
+draft: true      # retirer cette ligne pour publier le billet
+resources:
+  - allen-cahn.js
+---
+
+On se donne un domaine $\Omega\subset\R^2$, un petit paramètre $\eps>0$ et le potentiel double puits $W(u)=\tfrac14(1-u^2)^2$. L'énergie de Ginzburg–Landau est
+
+$$
+P_\eps(u)=\int_\Omega \frac{\eps}{2}\,\abs{\nabla u}^2+\frac{1}{\eps}\,W(u)\dd x .
+$$ {#eq-energie}
+
+::: {.column-margin}
+Les deux termes se compensent : le gradient pénalise les transitions brutales, le potentiel les valeurs hors de $\{-1,1\}$. L'équilibre fixe l'épaisseur de l'interface à l'ordre $\eps$.
+:::
+
+Une fonction d'énergie minimale prend presque partout les valeurs $\pm1$ et passe de l'une à l'autre dans une couche d'épaisseur $O(\eps)$. Le résultat suivant dit ce que mesure alors $P_\eps$.
+
+::: {#thm-modica}
+## Modica–Mortola
+
+Quand $\eps\to0$, $P_\eps$ $\Gamma$-converge dans $L^1(\Omega)$ vers $c_W\Per(E)$ pour $u=\mathbf 1_E-\mathbf 1_{\Omega\setminus E}$, où $c_W=\int_{-1}^{1}\sqrt{2W(s)}\dd s$.
+:::
+
+Ce résultat est dû à @modica1977.
+
+::: {.proof}
+*Idée.* L'inégalité de Young donne $\frac\eps2\abs{\nabla u}^2+\frac1\eps W(u)\ge \sqrt{2W(u)}\,\abs{\nabla u}$, et le membre de droite est le gradient de $\Phi(u)=\int_{-1}^{u}\sqrt{2W}$. On conclut par la formule de la coaire appliquée à $\Phi\circ u$.
+:::
+
+## Le flot de gradient : Allen–Cahn
+
+Le flot de gradient $L^2$ de @eq-energie, accéléré d'un facteur $1/\eps$, est l'équation d'Allen–Cahn [@allen1979]
+
+$$
+\partial_t u=\Delta u-\frac{1}{\eps^2}\,W'(u),\qquad W'(u)=u^3-u .
+$$ {#eq-ac}
+
+Formellement, l'interface $\{u=0\}$ se déplace avec une vitesse normale égale à sa courbure. Pour un disque de rayon initial $R_0$, on trouve $R(t)^2=R_0^2-2t$, donc une aire qui décroît *linéairement* : $A(t)=A_0-2\pi t$. La simulation ci-dessous résout @eq-ac et compare l'aire mesurée à cette droite.
+
+```{=html}
+<div class="column-page">
+<div class="sim" id="sim-allen-cahn" role="group" aria-label="Simulation interactive de l'équation d'Allen–Cahn">
+  <canvas class="sim-field" width="128" height="128" aria-label="Champ u sur une grille 128 par 128. Cliquer-glisser pour peindre la phase u = 1."></canvas>
+  <div class="sim-side">
+    <div class="sim-buttons" role="group" aria-label="Condition initiale">
+      <button type="button" data-init="disk" aria-pressed="true">Disque</button>
+      <button type="button" data-init="flower" aria-pressed="false">Fleur</button>
+      <button type="button" data-init="noise" aria-pressed="false">Bruit</button>
+      <button type="button" data-role="play" class="primary">Pause</button>
+    </div>
+    <label>Épaisseur d'interface : <span data-role="eps-val">ε = 1,5 h</span>
+      <input type="range" data-role="eps" min="1" max="4" step="0.25" value="1.5">
+    </label>
+    <div class="sim-readout">temps <b data-role="t">0</b> · aire {u &gt; 0} <b data-role="a">0</b></div>
+    <canvas class="sim-chart" width="480" height="300" aria-label="Aire mesurée en fonction du temps, et droite théorique A0 − 2πt"></canvas>
+    <div class="sim-readout">trait plein : aire mesurée · tirets : théorie \(A_0-2\pi t\)</div>
+  </div>
+  <p class="sim-caption">Schéma explicite sur une grille \(128\times128\) périodique, pas \(h=1\), \(\delta t=0{,}2\). Cliquer-glisser sur le champ pour ajouter de la phase \(u=1\). Le calcul tourne dans le navigateur.</p>
+</div>
+</div>
+<script src="allen-cahn.js"></script>
+```
+
+Avec la fleur, les pétales (forte courbure) reculent d'abord et la forme s'arrondit avant de disparaître. Avec le bruit, on voit la séparation de phase puis le grossissement des domaines. La résolution de l'interface compte : avec $\eps=h$, le disque rétrécit environ 6 % moins vite que prévu, alors qu'à $\eps=2h$ l'écart tombe sous 1 %.
+
+::: {.column-margin}
+**À essayer.** Mettre $\eps=h$ avec le disque : la courbe d'aire passe au-dessus de la droite. Avec $\eps=2h$, elle la suit de près.
+:::
+
+## Le cœur du code
+
+Le pas de temps tient en quelques lignes. La stabilité du schéma explicite impose $\delta t\le h^2/4$ pour le laplacien.
+
+```js
+// un pas explicite d'Allen–Cahn sur grille périodique
+for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+  const k = i*N + j, v = u[k];
+  const lap = u[up(i)*N+j] + u[dn(i)*N+j] + u[i*N+lf(j)] + u[i*N+rt(j)] - 4*v;
+  w[k] = v + dt * (lap - (v*v*v - v) / (eps*eps));
+}
+[u, w] = [w, u];
+```
+
+Le code complet de la simulation est dans [`allen-cahn.js`](allen-cahn.js), à côté de ce billet.
+
+## Pour aller plus loin
+
+Dans @bretin2022learning, on apprend directement ce flot avec un réseau de neurones, à partir du profil d'interface.

@@ -1,0 +1,88 @@
+/*-- scss:defaults --*/
+// Style « carnet » : fond uni, une couleur d'accent (bleu-vert lagon), serif pour le texte.
+$gt-accent: #136f72 !default;
+
+$body-bg: #fbfbf9 !default;
+$body-color: #1d232a !default;
+$link-color: $gt-accent !default;
+$primary: $gt-accent !default;
+
+$font-family-sans-serif: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif !default;
+$font-family-serif: "Literata", "Iowan Old Style", "Palatino Linotype", Georgia, serif !default;
+$font-family-monospace: "JetBrains Mono", "Cascadia Code", Consolas, monospace !default;
+$font-family-base: $font-family-serif !default;
+$headings-font-family: $font-family-sans-serif !default;
+$font-size-root: 17px !default;
+$line-height-base: 1.65 !default;
+
+$navbar-bg: $body-bg !default;
+$navbar-fg: #56606b !default;
+$navbar-hl: $body-color !default;
+$footer-bg: $body-bg !default;
+$footer-fg: #56606b !default;
+
+$code-block-bg: #f1f3f3 !default;
+$web-font-path: false; // ne pas charger la police du thème cosmo
+
+/*-- scss:rules --*/
+@import url("https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono&display=swap");
+
+:root {
+  --gt-accent: #136f72;
+  --gt-accent-soft: #e3f0ef;
+  --gt-ink-soft: #56606b;
+  --gt-rule: #dfe2e4;
+  --gt-field-bg: #f1f3f3;
+}
+
+.navbar { border-bottom: 1px solid var(--gt-rule); }
+.navbar .navbar-title { font-weight: 600; color: $body-color; }
+
+h1.title { font-family: $font-family-serif; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+h2, h3 { text-wrap: balance; }
+h2 { font-size: 1.2rem; font-weight: 600; margin-top: 2.2rem; border-bottom: none; }
+.quarto-title p.subtitle, .description { color: var(--gt-ink-soft); }
+.quarto-title-meta, .listing-date, .listing-reading-time, figcaption, .figure-caption,
+.column-margin, .margin-aside, .aside, aside {
+  font-family: $font-family-sans-serif;
+}
+.column-margin, .margin-aside, aside { font-size: 0.82rem; line-height: 1.5; color: var(--gt-ink-soft); }
+
+// Environnements mathématiques (théorème, lemme, définition…)
+.theorem, .lemma, .proposition, .corollary, .definition, .conjecture {
+  margin: 1.2rem 0;
+  padding: 0.8rem 1.1rem;
+  border-left: 3px solid var(--gt-accent);
+  background: var(--gt-accent-soft);
+  border-radius: 0 6px 6px 0;
+  > p:last-child { margin-bottom: 0; }
+}
+.theorem-title, .lemma-title, .proposition-title, .corollary-title, .definition-title, .conjecture-title {
+  font-family: $font-family-sans-serif; font-weight: 600; font-style: normal;
+}
+.proof { margin: -0.4rem 0 1.4rem; padding: 0 1.1rem; }
+.proof > p:first-child > span.proof-title { font-style: italic; }
+
+// Bloc de simulation
+.sim {
+  margin: 1.4rem 0 1.6rem; padding: 1rem; border: 1px solid var(--gt-rule); border-radius: 8px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 1.4rem;
+  font-family: $font-family-sans-serif; font-size: 0.86rem;
+  canvas { display: block; width: 100%; max-width: 100%; aspect-ratio: 1; border-radius: 4px; background: var(--gt-field-bg); touch-action: none; }
+  canvas.sim-chart { aspect-ratio: 16 / 10; background: transparent; border: 1px solid var(--gt-rule); }
+  .sim-side { display: flex; flex-direction: column; gap: 0.8rem; min-width: 0; }
+  .sim-buttons { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  button { font: inherit; font-size: 0.82rem; padding: 0.3rem 0.7rem; border-radius: 5px; border: 1px solid var(--gt-rule); background: transparent; color: inherit; cursor: pointer; }
+  button[aria-pressed="true"] { border-color: var(--gt-accent); color: var(--gt-accent); }
+  button.primary { background: var(--gt-accent); border-color: var(--gt-accent); color: #fff; }
+  input[type=range] { width: 100%; accent-color: var(--gt-accent); }
+  .sim-readout { font-variant-numeric: tabular-nums; color: var(--gt-ink-soft); }
+  .sim-caption { grid-column: 1 / -1; color: var(--gt-ink-soft); font-size: 0.82rem; }
+  @media (max-width: 640px) { grid-template-columns: minmax(0, 1fr); }
+}
+
+// Curseurs (y compris ceux d'Observable JS) à la couleur d'accent
+input[type=range] { accent-color: var(--gt-accent); }
+
+// Liste des billets
+.quarto-listing-default .listing-title { font-family: $font-family-serif; font-weight: 600; }

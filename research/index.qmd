@@ -1,0 +1,16 @@
+---
+title: "Recherche"
+page-layout: article
+---
+
+Mes travaux portent sur l'approximation de flots géométriques par des modèles de champ de phase, leur simulation numérique, et l'apprentissage de ces flots par des réseaux de neurones.
+
+## Publications
+
+- E. Bretin, S. Masnou, G. Terii. **Learning phase field mean curvature flows with neural networks.** *Journal of Computational Physics*, 470, 111579, 2022. [arXiv:2112.07343](https://arxiv.org/abs/2112.07343)
+
+- E. Bretin, S. Masnou, A. Sengers, G. Terii. **A multiphase Cahn–Hilliard system with mobilities and the numerical simulation of dewetting.** *ESAIM: M2AN*, 57(3), 1473–1509, 2023. [arXiv:2105.09627](https://arxiv.org/abs/2105.09627)
+
+- E. Bretin, S. Masnou, A. Sengers, G. Terii. **Approximation of surface diffusion flow: a second order variational Cahn–Hilliard model with degenerate mobilities.** *Mathematical Models and Methods in Applied Sciences*, 32(04), 793–829, 2022. [arXiv:2007.03793](https://arxiv.org/abs/2007.03793)
+
+Les billets du [carnet](../blog/index.qmd) étiquetés *travaux* présentent l'idée de chaque article de façon plus accessible.

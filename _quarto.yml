@@ -1,0 +1,64 @@
+project:
+  type: website
+  output-dir: _site
+  # _ancien/, docs/ et les fichiers commençant par _ ou . ne sont pas publiés
+  render:
+    - "*.qmd"
+    - "!docs/"
+  resources:
+    - about/CV.pdf
+
+lang: fr
+
+website:
+  title: "Garry Terii"
+  description: "Mathématiques appliquées, champ de phase et apprentissage pour les EDP. Université de la Nouvelle-Calédonie."
+  site-url: https://garryterii.github.io
+  repo-url: https://github.com/garryterii/garryterii.github.io
+  favicon: assets/favicon.svg
+  navbar:
+    title: "Garry Terii"
+    left:
+      - href: research/index.qmd
+        text: Recherche
+      - href: teaching/index.qmd
+        text: Enseignement
+      - href: blog/index.qmd
+        text: Carnet
+      - href: about/index.qmd
+        text: À propos
+    right:
+      - icon: rss
+        href: blog/index.xml
+        aria-label: Flux RSS du carnet
+      - icon: github
+        href: https://github.com/garryterii
+        aria-label: GitHub
+  page-footer:
+    left: "© 2026 Garry Terii · Nouméa"
+    right: "Écrit avec [Quarto](https://quarto.org)"
+
+format:
+  html:
+    theme:
+      light: [cosmo, assets/theme.scss]
+      dark: [cosmo, assets/theme.scss, assets/theme-dark.scss]
+    respect-user-color-scheme: true
+    html-math-method: mathjax
+    include-before-body: assets/macros.html
+    toc: false
+    smooth-scroll: true
+    link-external-newwindow: true
+    citations-hover: true
+    footnotes-hover: true
+    reference-location: margin
+    citation-location: margin
+    code-copy: hover
+    code-overflow: wrap
+    highlight-style: github
+    grid:
+      body-width: 680px
+      margin-width: 260px
+
+execute:
+  freeze: auto   # le code Python d'un billet n'est relancé que si ce billet change

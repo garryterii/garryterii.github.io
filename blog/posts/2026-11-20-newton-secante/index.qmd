@@ -1,0 +1,116 @@
+---
+title: "Newton, sécante, dichotomie : qui converge le plus vite ?"
+description: "Les tangentes de Newton à manipuler, puis une comparaison numérique des ordres de convergence."
+date: 2026-11-20
+categories: [fondamentaux, analyse numérique, Méthodologie 4B]
+draft: true      # retirer cette ligne pour publier le billet
+jupyter: python3
+---
+
+On cherche la racine réelle de $f(x)=x^3-2x-5$, l'exemple historique de Wallis, proche de $2{,}0946$. La méthode de Newton remplace $f$ par sa tangente en $x_k$ et prend pour $x_{k+1}$ le point où cette tangente s'annule :
+
+$$
+x_{k+1}=x_k-\frac{f(x_k)}{f'(x_k)} .
+$$ {#eq-newton}
+
+## Les tangentes, à la main
+
+Déplacer $x_0$ et le nombre d'itérations. Près de $x_0=\sqrt{2/3}\approx0{,}82$, où $f'$ s'annule, la première tangente est presque horizontale et l'itéré part très loin.
+
+```{ojs}
+//| echo: false
+viewof x0 = Inputs.range([0.6, 4], {value: 3.5, step: 0.01, label: "x₀"})
+viewof n = Inputs.range([1, 6], {value: 3, step: 1, label: "itérations"})
+```
+
+```{ojs}
+//| echo: false
+f = x => x ** 3 - 2 * x - 5
+df = x => 3 * x ** 2 - 2
+iterates = {
+  const xs = [x0];
+  for (let k = 0; k < n; k++) { const x = xs.at(-1); xs.push(x - f(x) / df(x)); }
+  return xs;
+}
+steps = iterates.slice(0, -1).flatMap((x, k) => [
+  {x1: x, y1: 0, x2: x, y2: f(x), kind: "vertical"},
+  {x1: x, y1: f(x), x2: iterates[k + 1], y2: 0, kind: "tangente"}
+])
+Plot.plot({
+  width: 640, height: 360, clip: true,
+  x: {domain: [0.5, 4.2], label: "x"},
+  y: {domain: [-15, 60], grid: true, label: "f(x)"},
+  marks: [
+    Plot.ruleY([0]),
+    Plot.line(d3.range(0.5, 4.21, 0.01), {x: d => d, y: f, strokeWidth: 2}),
+    Plot.link(steps, {x1: "x1", y1: "y1", x2: "x2", y2: "y2",
+      stroke: d => d.kind === "tangente" ? "var(--gt-accent)" : "currentColor",
+      strokeDasharray: d => d.kind === "vertical" ? "3,3" : null, strokeWidth: 1.5}),
+    Plot.dot(iterates.map((x, k) => ({x, k})), {x: "x", y: 0, fill: "var(--gt-accent)", r: 4}),
+    Plot.text(iterates.map((x, k) => ({x, k})), {x: "x", y: 0, text: d => `x${d.k}`, dy: 14})
+  ]
+})
+```
+
+```{ojs}
+//| echo: false
+Inputs.table(iterates.map((x, k) => ({k, "x_k": x.toFixed(12), "|f(x_k)|": Math.abs(f(x)).toExponential(2)})),
+  {select: false, layout: "auto"})
+```
+
+::: {.column-margin}
+Les curseurs et la figure sont écrits en Observable JS, intégré à Quarto : rien à installer, le calcul se fait dans le navigateur.
+:::
+
+## Comparer les ordres de convergence
+
+On mesure l'erreur $e_k=\abs{x_k-x^\ast}$ pour les trois méthodes vues en cours. En échelle logarithmique, la dichotomie descend en ligne droite (ordre 1), la sécante plus vite (ordre $\frac{1+\sqrt5}{2}\approx1{,}618$) et Newton double le nombre de chiffres exacts à chaque pas (ordre 2).
+
+```{python}
+#| label: fig-ordres
+#| fig-cap: "Erreur en fonction du nombre d'itérations pour $f(x)=x^3-2x-5$."
+#| code-fold: true
+#| code-summary: "Voir le code Python"
+import numpy as np
+import matplotlib.pyplot as plt
+
+f = lambda x: x**3 - 2*x - 5
+df = lambda x: 3*x**2 - 2
+xstar = 2.0945514815423265
+
+def dichotomie(a, b, n):
+    xs = []
+    for _ in range(n):
+        c = (a + b) / 2
+        xs.append(c)
+        a, b = (a, c) if f(a) * f(c) <= 0 else (c, b)
+    return xs
+
+def secante(x0, x1, n):
+    xs = [x0, x1]
+    while len(xs) < n and f(xs[-1]) != f(xs[-2]):
+        x0, x1 = xs[-2], xs[-1]
+        xs.append(x1 - f(x1) * (x1 - x0) / (f(x1) - f(x0)))
+    return xs
+
+def newton(x0, n):
+    xs = [x0]
+    while len(xs) < n and f(xs[-1]) != 0:
+        xs.append(xs[-1] - f(xs[-1]) / df(xs[-1]))
+    return xs
+
+fig, ax = plt.subplots(figsize=(6.4, 3.6))
+for nom, xs in [("dichotomie", dichotomie(2, 3, 40)),
+                ("sécante", secante(3, 2.9, 12)),
+                ("Newton", newton(3, 8))]:
+    e = np.abs(np.array(xs) - xstar)
+    e = e[e > 1e-16]
+    ax.semilogy(range(len(e)), e, "o-", ms=3, label=nom)
+ax.set_xlabel("itération $k$")
+ax.set_ylabel("$|x_k - x^*|$")
+ax.legend(frameon=False)
+ax.grid(alpha=0.3)
+plt.show()
+```
+
+Le gain se paie : Newton demande $f'$, la sécante deux valeurs initiales, et aucune des deux n'a la garantie de convergence de la dichotomie.

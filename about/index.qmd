@@ -1,0 +1,14 @@
+---
+title: "À propos"
+page-layout: article
+---
+
+Je m'appelle Garry Terii, enseignant-chercheur en mathématiques à l'Université de la Nouvelle-Calédonie. Je travaille sur l'approximation de modèles d'évolution, l'analyse numérique et l'apprentissage machine. J'ai obtenu mon doctorat en mathématiques en 2022 à l'Université Claude Bernard Lyon 1, où j'ai travaillé en théorie géométrique de la mesure, calcul des variations et optimisation.
+
+J'ai enseigné à différents niveaux universitaires, comme ATER et chargé de TD, en Polynésie française et en métropole. J'ai aussi participé à des actions de diffusion des mathématiques : ateliers interactifs et interventions auprès du grand public.
+
+Mes travaux portent sur les modèles variationnels, l'apprentissage de flots géométriques par réseaux de neurones et la résolution numérique d'équations aux dérivées partielles, avec un intérêt pour le traitement d'images.
+
+[Télécharger mon CV (PDF)](CV.pdf)
+
+Contact : garry.terii@unc.nc

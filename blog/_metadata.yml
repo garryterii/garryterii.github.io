@@ -1,0 +1,10 @@
+# Options communes à tous les billets du carnet
+format:
+  html:
+    toc: true
+    toc-location: left
+    toc-title: "Sommaire"
+    toc-depth: 2
+    appendix-style: default
+bibliography: ../refs.bib
+title-block-banner: false

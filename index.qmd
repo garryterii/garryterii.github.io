@@ -1,0 +1,26 @@
+---
+title: "Garry Terii"
+subtitle: "Enseignant-chercheur en mathématiques appliquées · Université de la Nouvelle-Calédonie"
+listing:
+  id: derniers-billets
+  contents: blog/posts
+  sort: "date desc"
+  type: default
+  max-items: 3
+  fields: [date, title, description, reading-time]
+  date-format: "D MMMM YYYY"
+page-layout: article
+---
+
+Je travaille sur les modèles de champ de phase (Allen–Cahn, Cahn–Hilliard), les flots géométriques comme le flot par courbure moyenne, et l'usage des réseaux de neurones pour apprendre et approcher des équations d'évolution. J'aime faire le lien entre l'analyse théorique et les algorithmes, et montrer les deux.
+
+Ce site rassemble mes [travaux](research/index.qmd), mes [enseignements](teaching/index.qmd) et un [carnet](blog/index.qmd) où j'explique, simulations à l'appui, des idées de mathématiques fondamentales et appliquées.
+
+## Derniers billets du carnet
+
+::: {#derniers-billets}
+:::
+
+## Contact
+
+garry.terii@unc.nc

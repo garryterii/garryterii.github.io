@@ -1,0 +1,22 @@
+/*-- scss:defaults --*/
+$gt-accent: #5fc2c0;
+$body-bg: #15191d;
+$body-color: #e4e7ea;
+$link-color: $gt-accent;
+$primary: $gt-accent;
+$navbar-bg: $body-bg;
+$navbar-fg: #9aa4ae;
+$navbar-hl: $body-color;
+$footer-bg: $body-bg;
+$footer-fg: #9aa4ae;
+$code-block-bg: #1d2329;
+
+/*-- scss:rules --*/
+:root {
+  --gt-accent: #5fc2c0;
+  --gt-accent-soft: #1b2e30;
+  --gt-ink-soft: #9aa4ae;
+  --gt-rule: #2c333a;
+  --gt-field-bg: #1d2329;
+}
+.sim button.primary { color: #15191d; }
