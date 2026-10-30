@@ -4,3 +4,5 @@
 __pycache__/
 *.ipynb_checkpoints
 # Ne pas ignorer _freeze/ : il contient les résultats figés des calculs Python
+
+**/*.quarto_ipynb

@@ -25,4 +25,10 @@ page-layout: article
 - Analyse numérique et calcul différentiel à plusieurs variables
 - TREC5 : projets étudiants autour de l'exponentielle de matrice
 
-Certains billets du [carnet](../blog/index.qmd), étiquetés *fondamentaux*, accompagnent ces cours.
+## Pages compagnon
+
+Des pages interactives qui accompagnent un chapitre de cours : on règle les paramètres et on voit la méthode tourner, directement dans le navigateur.
+
+- [Méthodes de descente à un pas](descente-un-pas/index.qmd) (Mathématiques appliquées B, chapitre « Optimisation sans contrainte »)
+
+Certains billets du [carnet](../blog/index.qmd), étiquetés *fondamentaux*, accompagnent aussi ces cours.

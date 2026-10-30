@@ -1,0 +1,316 @@
+---
+title: "Méthodes de descente à un pas"
+subtitle: "Régler, voir, comparer : page compagnon du chapitre « Optimisation sans contrainte » de Mathématiques appliquées B"
+author: "Garry Terii"
+format:
+  html:
+    toc: true
+    toc-title: "Sur cette page"
+    code-fold: true
+    code-summary: "Voir le code"
+---
+
+::: {.callout-note appearance="simple"}
+**Prototype.** Les curseurs recalculent tout en direct dans votre navigateur ; rien n'est envoyé nulle part. Les notations sont celles du cours et de la fiche de TD n°3.
+:::
+
+## L'idée en une ligne
+
+On cherche à résoudre $\min_{x \in \mathbb{R}^2} f(x)$. Une **méthode de descente à un pas** construit une suite $(x_k)_{k\in\mathbb{N}}$ en ne regardant, à chaque étape, que le point courant :
+
+$$
+x_{k+1} = x_k - \alpha_k \nabla f(x_k), \qquad \alpha_k > 0 .
+$$
+
+Toutes les méthodes de cette page partagent cette formule ; elles ne diffèrent que par **le choix du pas** $\alpha_k$ :
+
+| Méthode | Choix du pas $\alpha_k$ |
+|---|---|
+| Pas fixe | $\alpha_k = \alpha$, le même à chaque itération |
+| Pas optimal | $\alpha_k$ minimise $t \mapsto f\big(x_k - t\nabla f(x_k)\big)$ |
+| Armijo (rebroussement) | on part de $\alpha = 1$ et on divise par 2 tant que $f(x_k - \alpha \nabla f(x_k)) > f(x_k) - c\,\alpha\,\|\nabla f(x_k)\|^2$ (ici $c = 10^{-4}$) |
+| Newton (pour comparaison) | on remplace $\alpha_k \nabla f(x_k)$ par $\big(\nabla^2 f(x_k)\big)^{-1} \nabla f(x_k)$ |
+
+## Le laboratoire
+
+Choisissez une fonction, un point de départ et des méthodes. Les trois vues en dessous se mettent à jour ensemble.
+
+```{ojs}
+//| echo: false
+import {quadratique, rosenbrock, deuxPuits, descente, tauxPasFixe, pasFixeOptimal, tauxPasOptimal} from "./descente.js"
+
+toutesMethodes = ["pas fixe", "pas optimal", "Armijo", "Newton"]
+couleurs = ["#4269d0", "#ff725c", "#3ca951", "#a463f2"]
+
+domaines = ({
+  quad: {x: [-5, 5], y: [-3.5, 3.5]},
+  rosen: {x: [-2, 2], y: [-1, 3]},
+  puits: {x: [-2, 2], y: [-1.5, 1.5]}
+})
+departs = ({quad: [4, 1], rosen: [-1.5, 2], puits: [0.3, 1]})
+```
+
+```{ojs}
+//| echo: false
+//| panel: input
+viewof choix = Inputs.radio(new Map([
+  ["Quadratique ½⟨Ax, x⟩", "quad"],
+  ["Rosenbrock : (1 − x)² + 10(y − x²)²", "rosen"],
+  ["Deux puits : (x² − 1)² + 2y²", "puits"]
+]), {label: "Fonction", value: "quad"})
+
+viewof a = Inputs.range([0.2, 10], {value: 1, step: 0.1, label: "a (valeur propre)", disabled: choix !== "quad"})
+viewof b = Inputs.range([0.2, 50], {value: 10, step: 0.1, label: "b (valeur propre)", disabled: choix !== "quad"})
+viewof thetaDeg = Inputs.range([0, 90], {value: 0, step: 1, label: "rotation des axes (°)", disabled: choix !== "quad"})
+
+viewof x0x = Inputs.range(domaines[choix].x, {value: departs[choix][0], step: 0.05, label: "départ x₀"})
+viewof x0y = Inputs.range(domaines[choix].y, {value: departs[choix][1], step: 0.05, label: "départ y₀"})
+
+viewof methodes = Inputs.checkbox(toutesMethodes, {value: ["pas fixe", "pas optimal"], label: "Méthodes"})
+
+plageAlpha = choix === "quad" ? [0.001, +(2.4 / Math.max(a, b)).toFixed(3)]
+           : choix === "rosen" ? [0.001, 0.06] : [0.01, 0.5]
+defautAlpha = choix === "quad" ? +(1.6 / Math.max(a, b)).toFixed(3) : choix === "rosen" ? 0.01 : 0.1
+viewof alpha = Inputs.range(plageAlpha, {value: defautAlpha, step: 0.001, label: "α (pas fixe)"})
+
+viewof maxIter = Inputs.range([10, 5000], {value: 300, step: 10, label: "itérations max"})
+```
+
+```{ojs}
+//| echo: false
+pb = choix === "quad" ? quadratique(a, b, thetaDeg * Math.PI / 180)
+   : choix === "rosen" ? rosenbrock(10) : deuxPuits()
+dom = domaines[choix]
+x0 = [x0x, x0y]
+resultats = methodes.map(m => descente(pb, x0, m, {alpha, maxIter, tol: 1e-8}))
+```
+
+```{ojs}
+//| echo: false
+infos = {
+  // le texte contient du LaTeX entre \( \) ; MathJax le compose en SVG comme le reste de la page
+  const el = html`<p></p>`;
+  if (choix !== "quad") {
+    el.innerHTML = String.raw`<em>Ici, \(f\) n'est pas quadratique : il n'y a pas de seuil \(2/L\) global, le pas fixe qui convient se cherche à tâtons.</em>`;
+  } else {
+    const L = pb.L, M = pb.M, rho = tauxPasFixe(alpha, L, M);
+    const etat = rho < 1 ? "le pas fixe converge" : String.raw`le pas fixe diverge (\(\alpha \geq 2/L\))`;
+    el.innerHTML = String.raw`\(L = ${L}\), \(M = ${M}\), conditionnement \(\kappa = L/M = ${(L / M).toFixed(1)}\)
+      · seuil \(2/L = ${(2 / L).toFixed(3)}\) · meilleur pas fixe \(\alpha^* = 2/(L+M) = ${pasFixeOptimal(L, M).toFixed(3)}\)
+      · avec \(\alpha = ${alpha}\), taux \(\rho(\alpha) = ${rho.toFixed(3)}\) : <strong>${etat}</strong>.`;
+  }
+  // composer quand MathJax est chargé ET que le paragraphe est dans la page (MathJax mesure la police autour)
+  const composer = () => (window.MathJax?.typesetPromise && el.isConnected) ? MathJax.typesetPromise([el]) : setTimeout(composer, 50);
+  composer();
+  return el;
+}
+```
+
+### Vue 1 : les trajectoires
+
+Les lignes de niveau de $f$, les minimiseurs (étoiles), le point de départ (rond blanc) et la suite $(x_k)$ de chaque méthode. Survolez un point pour lire son indice $k$.
+
+```{ojs}
+//| echo: false
+niveaux = {
+  const echantillon = [];
+  for (let i = 0; i <= 20; i++) for (let j = 0; j <= 20; j++)
+    echantillon.push(pb.f([dom.x[0] + i * (dom.x[1] - dom.x[0]) / 20, dom.y[0] + j * (dom.y[1] - dom.y[0]) / 20]));
+  const hi = Math.max(...echantillon) - pb.fmin, lo = 1e-2;
+  return Array.from({length: 18}, (_, i) => pb.fmin + lo * Math.pow(hi / lo, i / 17));
+}
+
+Plot.plot({
+  width: Math.min(width, 760),
+  aspectRatio: 1,
+  x: {domain: dom.x, label: "x"},
+  y: {domain: dom.y, label: "y"},
+  color: {domain: toutesMethodes, range: couleurs, legend: true},
+  marks: [
+    Plot.contour({value: (x, y) => pb.f([x, y]), x1: dom.x[0], x2: dom.x[1], y1: dom.y[0], y2: dom.y[1],
+                  thresholds: niveaux, stroke: "currentColor", strokeOpacity: 0.25, fill: "none", pixelSize: 2}),
+    ...resultats.flatMap(r => {
+      const pts = r.iteres.map(([x, y], k) => ({x, y, k, methode: r.methode}));
+      return [
+        Plot.line(pts, {x: "x", y: "y", stroke: "methode", strokeWidth: 1.5, clip: true}),
+        Plot.dot(pts, {x: "x", y: "y", fill: "methode", r: 2.5, clip: true,
+                       title: d => `${d.methode} — k = ${d.k}\nx = (${d.x.toFixed(3)}, ${d.y.toFixed(3)})`, tip: true})
+      ];
+    }),
+    Plot.dot(pb.minimiseurs.map(([x, y]) => ({x, y})), {x: "x", y: "y", symbol: "star", r: 7, fill: "currentColor"}),
+    Plot.dot([{x: x0x, y: x0y}], {x: "x", y: "y", r: 6, stroke: "currentColor", fill: "white", strokeWidth: 1.5})
+  ]
+})
+```
+
+### Vue 2 : pas à pas (animation)
+
+La méthode du **pas fixe**, une itération à la fois, avec la flèche du déplacement $-\alpha\nabla f(x_k)$. Observez qu'elle est toujours perpendiculaire à la ligne de niveau qui passe par $x_k$.
+
+```{ojs}
+//| echo: false
+P5 = require("p5@1.11.1")
+
+animation = {
+  const W = Math.min(width, 760);
+  const echelle = Math.min(W / (dom.x[1] - dom.x[0]), 480 / (dom.y[1] - dom.y[0]));
+  const larg = Math.round(echelle * (dom.x[1] - dom.x[0])), haut = Math.round(echelle * (dom.y[1] - dom.y[0]));
+  const versEcran = ([x, y]) => [(x - dom.x[0]) * echelle, (dom.y[1] - y) * echelle];
+  const chemin = descente(pb, x0, "pas fixe", {alpha, maxIter: Math.min(maxIter, 400), tol: 1e-8});
+  const pts = chemin.iteres;
+
+  let k = 0, enLecture = true, visible = true, attente = 0, dejaDessine = false;
+  const conteneur = html`<div style="margin: 0.5rem 0 1.5rem 0;"></div>`;
+  const zone = html`<div></div>`;
+  const bLecture = html`<button class="btn btn-sm btn-outline-primary">Pause</button>`;
+  const bSuivant = html`<button class="btn btn-sm btn-outline-secondary">Pas suivant</button>`;
+  const bRejouer = html`<button class="btn btn-sm btn-outline-secondary">Rejouer</button>`;
+  const vitesse = Inputs.range([1, 20], {value: 4, step: 1, label: "itérations par seconde"});
+  conteneur.append(zone, html`<div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.4rem;">${bLecture}${bSuivant}${bRejouer}${vitesse}</div>`);
+
+  const instance = new P5(s => {
+    let fond;
+    s.setup = () => {
+      const toile = s.createCanvas(larg, haut);
+      toile.parent(zone);
+      // p5 masque la toile jusqu'à la fin de setup ; quand OJS recrée la cellule, la toile n'est pas encore dans la page à ce moment-là
+      toile.elt.style.visibility = "visible";
+      delete toile.elt.dataset.hidden;
+      s.frameRate(30);
+      // fond en bandes de niveau (calculé une seule fois)
+      fond = s.createGraphics(larg, haut);
+      fond.noStroke();
+      for (let i = 0; i < larg; i += 2) for (let j = 0; j < haut; j += 2) {
+        const x = dom.x[0] + i / echelle, y = dom.y[1] - j / echelle;
+        const bande = Math.floor(Math.log(pb.f([x, y]) - pb.fmin + 1e-3) / Math.log(1.7));
+        fond.fill(bande % 2 === 0 ? 244 : 222);
+        fond.rect(i, j, 2, 2);
+      }
+    };
+    s.draw = () => {
+      // hors de l'écran : on ne redessine pas (économie de calcul), sauf la toute première image
+      if (!visible && dejaDessine) return;
+      dejaDessine = true;
+      s.image(fond, 0, 0);
+      // minimiseurs
+      s.noStroke(); s.fill(30);
+      for (const m of pb.minimiseurs) { const [u, v] = versEcran(m); s.circle(u, v, 8); }
+      // chemin parcouru
+      s.stroke(66, 105, 208); s.strokeWeight(1.5); s.noFill();
+      s.beginShape(); for (let i = 0; i <= k; i++) { const [u, v] = versEcran(pts[i]); s.vertex(u, v); } s.endShape();
+      s.noStroke(); s.fill(66, 105, 208);
+      for (let i = 0; i < k; i++) { const [u, v] = versEcran(pts[i]); s.circle(u, v, 4); }
+      // point courant et flèche -alpha grad f
+      const xk = pts[k], [u, v] = versEcran(xk);
+      if (k < pts.length - 1) {
+        const [u2, v2] = versEcran(pts[k + 1]);
+        s.stroke(255, 114, 92); s.strokeWeight(2.5); s.line(u, v, u2, v2);
+        const ang = Math.atan2(v2 - v, u2 - u);
+        s.push(); s.translate(u2, v2); s.rotate(ang); s.noStroke(); s.fill(255, 114, 92); s.triangle(0, 0, -9, -4, -9, 4); s.pop();
+      }
+      s.stroke(255); s.strokeWeight(2); s.fill(66, 105, 208); s.circle(u, v, 11);
+      // légende
+      s.noStroke(); s.fill(20); s.textSize(13);
+      const err = Math.max(pb.f(xk) - pb.fmin, 0);
+      s.text(`k = ${k}    f(x_k) − f* = ${err.toExponential(2)}    α = ${alpha}    (${chemin.statut}, ${chemin.iterations} itérations)`, 10, 20);
+      // avance
+      if (enLecture && k < pts.length - 1) {
+        attente += vitesse.value / 30;
+        if (attente >= 1) { attente = 0; k++; }
+      }
+      if (k >= pts.length - 1) { enLecture = false; bLecture.textContent = "Lecture"; }
+    };
+  });
+
+  bLecture.onclick = () => { enLecture = !enLecture; if (enLecture && k >= pts.length - 1) k = 0; bLecture.textContent = enLecture ? "Pause" : "Lecture"; };
+  bSuivant.onclick = () => { enLecture = false; bLecture.textContent = "Lecture"; if (k < pts.length - 1) k++; };
+  bRejouer.onclick = () => { k = 0; enLecture = true; bLecture.textContent = "Pause"; };
+  // l'animation ne tourne que lorsqu'elle est visible à l'écran
+  const observateur = new IntersectionObserver(([e]) => { visible = e.isIntersecting; });
+  observateur.observe(conteneur);
+  invalidation.then(() => { observateur.disconnect(); instance.remove(); });
+  return conteneur;
+}
+```
+
+### Vue 3 : la vitesse de convergence
+
+L'écart $f(x_k) - f^*$ en échelle logarithmique. Une droite descendante signifie une **convergence linéaire** : l'erreur est multipliée par le même facteur à chaque itération ; plus la pente est forte, plus la méthode est rapide. Pour la quadratique, les pointillés tracent les bornes du cours : $\rho(\alpha)^{2k}$ pour le pas fixe, $\left(\frac{\kappa-1}{\kappa+1}\right)^{2k}$ pour le pas optimal.
+
+```{ojs}
+//| echo: false
+courbes = resultats.flatMap(r => r.erreurs.map(e => ({methode: r.methode, k: e.k, e: Math.max(e.erreur, 1e-17)})))
+
+bornes = {
+  if (choix !== "quad") return [];
+  const e0 = Math.max(pb.f(x0) - pb.fmin, 1e-17), lignes = [];
+  for (const r of resultats) {
+    let taux = null;
+    if (r.methode === "pas fixe") taux = tauxPasFixe(alpha, pb.L, pb.M) ** 2;
+    if (r.methode === "pas optimal") taux = tauxPasOptimal(pb.kappa);
+    if (taux === null || taux >= 1) continue;
+    for (let k = 0; k <= r.iterations; k++) {
+      const v = e0 * taux ** k;
+      if (v < 1e-17) break;
+      lignes.push({methode: r.methode, k, e: v});
+    }
+  }
+  return lignes;
+}
+
+Plot.plot({
+  width: Math.min(width, 760),
+  height: 340,
+  x: {label: "itération k"},
+  y: {type: "log", label: "f(xₖ) − f*", tickFormat: "e"},
+  color: {domain: toutesMethodes, range: couleurs, legend: true},
+  marks: [
+    Plot.line(bornes, {x: "k", y: "e", stroke: "methode", strokeDasharray: "4 3", strokeOpacity: 0.7}),
+    Plot.line(courbes, {x: "k", y: "e", stroke: "methode", strokeWidth: 1.8, tip: true}),
+    Plot.ruleY([1e-17], {strokeOpacity: 0.2})
+  ]
+})
+```
+
+### Le bilan
+
+Ce que chaque méthode a coûté pour atteindre $\|\nabla f(x_k)\| < 10^{-8}$ (ou s'arrêter). Le nombre d'itérations ne dit pas tout : regardez aussi ce qu'une itération demande.
+
+```{ojs}
+//| echo: false
+html`<table class="table table-sm">
+  <thead><tr><th>Méthode</th><th>Statut</th><th>Itérations</th><th>Évaluations de f</th><th>de ∇f</th><th>de ∇²f</th><th>f(x<sub>final</sub>) − f*</th><th>x<sub>final</sub></th></tr></thead>
+  <tbody>${resultats.map(r => html`<tr>
+    <td style="color:${couleurs[toutesMethodes.indexOf(r.methode)]}; font-weight:600">${r.methode}</td>
+    <td>${r.statut}</td><td>${r.iterations}</td>
+    <td>${r.evaluations.f}</td><td>${r.evaluations.grad}</td><td>${r.evaluations.hess}</td>
+    <td>${r.erreurFinale.toExponential(2)}</td>
+    <td>(${r.xFinal.map(v => Number.isFinite(v) ? v.toFixed(3) : "∞").join(", ")})</td></tr>`)}</tbody>
+</table>`
+```
+
+## Six expériences à faire
+
+Chaque expérience part des réglages indiqués ; le résultat attendu est donné entre parenthèses. Pour les trois premières, réglez les itérations max sur 1000.
+
+1. **Le seuil $2/L$.** Quadratique, $a = 1$, $b = 10$, départ $(4, 1)$, pas fixe seul. Montez $\alpha$ jusqu'à $0{,}199$, puis passez à $0{,}21$. *(En dessous de $2/L = 0{,}2$ la suite converge, de plus en plus lentement avec des oscillations en $y$ ; au-dessus, elle diverge.)*
+2. **Le meilleur pas fixe.** Mêmes réglages : comparez $\alpha = 0{,}05$, $0{,}1$ et $\alpha^* = 2/(L+M) \approx 0{,}182$. *(Environ 390, 190 puis 105 itérations : $\alpha^*$ équilibre les deux directions propres.)*
+3. **Le conditionnement.** Pas fixe à $\alpha^*$, puis montez $b$ de 10 à 50. *(Le nombre d'itérations croît à peu près comme $\kappa$ : les ellipses s'allongent et la trajectoire zigzague.)*
+4. **Le zigzag du pas optimal.** $a = 1$, $b = 10$, pas optimal seul. *(Deux directions successives sont orthogonales : c'est la condition d'optimalité de la recherche linéaire. Partez maintenant de $(4, 0)$ : une seule itération suffit, car on part sur un axe propre.)*
+5. **Une fonction non quadratique.** Rosenbrock, départ $(-1{,}5 ;\ 2)$, itérations max 5000, les quatre méthodes. *(Pas fixe : il faut $\alpha \approx 0{,}01$ et des milliers d'itérations ; à $0{,}05$ il diverge. Armijo converge sans réglage. Le pas optimal fait moins d'itérations que le pas fixe mais coûte environ 100 000 évaluations de $f$. Newton conclut en une dizaine d'itérations, au prix des hessiennes.)*
+6. **Le piège des points critiques.** Deux puits, départ $(0{,}3 ;\ 1)$, Armijo et Newton. *(Armijo descend vers le minimiseur $(1, 0)$. Newton s'arrête en $(0, 0)$ : le gradient y est nul, mais c'est un point selle. Newton cherche un zéro du gradient, pas un minimum.)*
+
+## Comparer les méthodes sous plusieurs angles
+
+| | Pas fixe | Pas optimal | Armijo | Newton |
+|---|---|---|---|---|
+| **Ce qu'il faut connaître** | $\nabla f$ et une estimation de $L$ (choisir $\alpha < 2/L$) | $\nabla f$ et savoir minimiser en une variable | $f$ et $\nabla f$ | $\nabla f$ et $\nabla^2 f$ |
+| **Coût d'une itération** | 1 gradient | 1 gradient + une minimisation 1D (formule exacte pour une quadratique, sinon des dizaines d'évaluations de $f$) | 1 gradient + quelques évaluations de $f$ | 1 gradient, 1 hessienne, 1 système linéaire |
+| **Vitesse (quadratique)** | linéaire, au mieux de taux $\frac{\kappa-1}{\kappa+1}$ sur $\|x_k - x^*\|$ | linéaire, $f(x_k)-f^*$ divisé au moins par $\left(\frac{\kappa+1}{\kappa-1}\right)^2$ à chaque pas | linéaire | une seule itération |
+| **Robustesse** | diverge si $\alpha$ est trop grand | $f$ décroît toujours | $f$ décroît toujours, aucun réglage délicat | peut converger vers un point selle ou un maximum ; hessienne parfois non inversible |
+| **Point faible** | très lent quand $\kappa$ est grand | zigzag, coût de la recherche linéaire | lent quand $\kappa$ est grand | coût de la hessienne en grande dimension |
+
+## Pour aller plus loin
+
+- **Fiche de TD n°3** : la preuve de la convergence du pas fixe pour $\alpha \in\, ]0, 2/L[$ et du taux $1 - 2\alpha M + L^2\alpha^2$ dans le cas fortement convexe.
+- **Méthodes à deux pas** (boule pesante, Nesterov) : elles utilisent aussi $x_{k-1}$ et accélèrent nettement la convergence quand $\kappa$ est grand. Ce sera l'objet d'une prochaine page.

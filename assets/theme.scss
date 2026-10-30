@@ -86,3 +86,7 @@ input[type=range] { accent-color: var(--gt-accent); }
 
 // Liste des billets
 .quarto-listing-default .listing-title { font-family: $font-family-serif; font-weight: 600; }
+
+// Maths en SVG : formules centrées un peu plus grandes, défilement horizontal si elles débordent (téléphone)
+mjx-container[jax="SVG"] { font-size: 105%; }
+mjx-container[jax="SVG"][display="true"] { margin: 1.1em 0; overflow-x: auto; overflow-y: hidden; }
