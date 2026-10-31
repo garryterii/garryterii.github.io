@@ -2,7 +2,7 @@
 
 Site personnel et carnet (blog) de Garry Terii, construit avec [Quarto](https://quarto.org) et publié sur GitHub Pages par GitHub Actions.
 
-> **État au 21/10/2026.** Le projet Quarto est en place dans ce dossier, mais rien n'est encore poussé sur GitHub. Le site en ligne est toujours l'ancien site HTML (corrigé : le script `polyfill.io` a été retiré de `index.html`). Les étapes pour basculer sont dans [docs/02-MIGRATION.md](docs/02-MIGRATION.md).
+> **État au 31/10/2026.** Le site Quarto est en ligne depuis le 21/10/2026 (https://garryterii.github.io), publié par GitHub Actions ; l'ancien site HTML est retiré (récupérable dans l'historique Git). Première page compagnon publiée le 30/10 : [teaching/descente-un-pas/](https://garryterii.github.io/teaching/descente-un-pas/). Les deux billets du carnet sont encore en brouillon. Ce qui reste à faire : [docs/02-MIGRATION.md](docs/02-MIGRATION.md).
 
 ## Les documents à lire, dans l'ordre
 
@@ -19,7 +19,8 @@ Site personnel et carnet (blog) de Garry Terii, construit avec [Quarto](https://
 _quarto.yml              configuration du site (menu, thème, MathJax, marges)
 index.qmd                page d'accueil (présentation + 3 derniers billets)
 research/index.qmd       publications
-teaching/index.qmd       enseignements
+teaching/index.qmd       enseignements (+ section « Pages compagnon »)
+teaching/<page>/         une page compagnon interactive par dossier (index.qmd + JS)
 about/index.qmd          à propos (+ about/CV.pdf)
 blog/index.qmd           le carnet : liste des billets, filtres, flux RSS
 blog/_metadata.yml       options communes aux billets (sommaire, bibliographie)
@@ -43,7 +44,7 @@ git add . && git commit -m "Nouveau billet : ..." && git push   # publie (l'Acti
 
 ## Choix techniques, en bref
 
-- **Quarto 1.9** : théorèmes numérotés et renvois (`@thm-...`, `@eq-...`), citations `.bib`, notes et références dans la marge, blog avec RSS, code Python exécuté, Observable JS pour l'interactif.
+- **Quarto** (1.9.37 dans le workflow, 1.10.19 sur le PC fixe) : théorèmes numérotés et renvois (`@thm-...`, `@eq-...`), citations `.bib`, notes et références dans la marge, blog avec RSS, code Python exécuté, Observable JS pour l'interactif.
 - **MathJax 3.2.2 en sortie SVG** (comme le premier aperçu « Carnet de Garry Terii ») avec les macros de `assets/macros.html` : rendu identique sur tous les navigateurs, sans polices web à charger. Réglé dans `_quarto.yml`, option `html-math-method`.
 - **Style** : texte en Literata, interface en IBM Plex Sans, code en JetBrains Mono ; une seule couleur d'accent (bleu-vert lagon) ; mode sombre automatique.
 - **Publication** : GitHub Actions construit le site à chaque `push` sur `main` et le dépose sur GitHub Pages. Les billets en brouillon (`draft: true`) ne sont pas publiés.

@@ -1,74 +1,41 @@
 # Migration vers Quarto : fait et à faire
 
-Dernière mise à jour : 21/10/2026.
+Dernière mise à jour : 31/10/2026. **La migration est faite** : le site Quarto est en ligne depuis le 21/10/2026.
 
-## Ce qui a été fait (par Claude, dans ce dossier, sans rien pousser)
+## Ce qui a été fait
 
-1. **Correction de sécurité** dans `index.html` : suppression de la ligne qui chargeait `https://polyfill.io/v3/polyfill.min.js`. Ce domaine a été racheté en 2024 puis utilisé pour injecter du code malveillant dans plus de 380 000 sites ([The Hacker News](https://thehackernews.com/2024/07/polyfillio-attack-impacts-over-380000.html)). MathJax n'en a pas besoin. *Rien d'autre n'a changé dans ce fichier.*
-2. **Projet Quarto ajouté à côté des anciennes pages** (aucun ancien fichier supprimé ni déplacé) :
-   - `_quarto.yml`, `index.qmd`, `research/`, `teaching/`, `about/` (contenus repris des pages HTML, légèrement resserrés), `blog/` ;
-   - deux billets **en brouillon** (`draft: true`) : *Du champ de phase au flot par courbure moyenne* (simulation Allen–Cahn en JavaScript) et *Newton, sécante, dichotomie* (curseurs Observable JS + figure Python) ;
-   - thème clair/sombre, macros LaTeX, `refs.bib`, `requirements.txt`, `.gitignore` ;
-   - le workflow GitHub Actions (`.github/workflows/publish.yml`) ;
-   - cette documentation dans `docs/`.
-3. **Vérification** : le site a été construit avec Quarto 1.9.37 (aucune erreur ni avertissement), puis ouvert dans Chromium. Formules, macros, théorème, renvois, citations en marge, simulation, curseurs OJS, figure Python et mode sombre fonctionnent. Captures dans [docs/captures/](captures/).
+1. **Correction de sécurité** (21/10) : suppression dans l'ancien `index.html` du script `https://polyfill.io/v3/polyfill.min.js`. Ce domaine a été racheté en 2024 puis utilisé pour injecter du code malveillant dans plus de 380 000 sites ([The Hacker News](https://thehackernews.com/2024/07/polyfillio-attack-impacts-over-380000.html)). Commit `09e876c`.
+2. **Passage à Quarto** (21/10, commit `1cc6922`) : pages `index.qmd`, `research/`, `teaching/`, `about/` (contenus repris des pages HTML), `blog/` avec deux billets en brouillon, thème clair/sombre, macros LaTeX, `refs.bib`, `requirements.txt`, workflow `.github/workflows/publish.yml`, cette documentation. Les anciennes pages HTML sont retirées ; elles restent dans l'historique Git (`git show 09e876c:index.html`). Le CV `about/CV.pdf` est conservé.
+3. **GitHub Pages en mode GitHub Actions** et premier déploiement réussi (21/10).
+4. **MathJax en sortie SVG** (21/10, commit `b2eb59d`), réglé dans `_quarto.yml` (`html-math-method`).
+5. **PC fixe** (30/10) : dépôt cloné dans `C:\Users\ADMIN\work\garryterii.github.io`, Quarto 1.10.19.
+6. **Première page compagnon** (30/10, commit `4ac3cc4`) : `teaching/descente-un-pas/` (`index.qmd` + `descente.js`), liée depuis la section « Pages compagnon » de `teaching/index.qmd`. Vérifiée en ligne : https://garryterii.github.io/teaching/descente-un-pas/
 
-### Points relevés pendant la vérification
+### Points relevés
 
 - Quarto charge **MathJax 3** (pas la version 4) et ajoute lui-même un script `polyfill` servi par **cdnjs.cloudflare.com**. Ce n'est pas le domaine compromis : c'est le miroir sûr mis en place par Cloudflare en 2024. Aucune action nécessaire.
 - Une citation `[@...]` placée **à l'intérieur** d'un théorème, avec les références en marge, fait déborder l'encadré sur toute la largeur. Citer juste après le théorème (voir [03-ECRIRE-UN-BILLET.md](03-ECRIRE-UN-BILLET.md)).
-- Les polices (Google Fonts) n'ont pas pu être chargées pendant le test : vérifier leur rendu au premier `quarto preview`.
+- Quarto ajoute `**/*.quarto_ipynb` au `.gitignore` et le réécrit avec des fins de ligne CRLF sous Windows : les remettre en LF avant de commiter.
+- Le workflow utilise Quarto 1.9.37, le PC fixe 1.10.19. Si un rendu diffère entre l'aperçu local et le site en ligne, aligner la version dans `publish.yml`.
 
-## Ce qui reste à faire (par toi)
+## Ce qui reste à faire
 
-Le workflow est déjà à sa place dans `.github/workflows/publish.yml` (déplacé le 21/10). Les billets restent en brouillon (`draft: true`) tant que leur rendu n'est pas validé : en ligne, on verra les pages mais pas encore les billets. Pour relire les billets, utiliser l'aperçu Claude ou `quarto preview`.
-
-### Étape 1 — Publier la correction de sécurité et retirer l'ancien site (Git Bash, PC du bureau)
-
-```bash
-cd ~/Documents/MCFC/site/garryterii.github.io
-git status                       # contrôle : index.html modifié, nouveaux fichiers non suivis
-
-git add index.html
-git commit -m "Retire le script polyfill.io (domaine compromis)"
-
-git rm index.html styles.css about/index.html research/index.html teaching/index.html
-git add .
-git commit -m "Passage à Quarto : pages, carnet, thème, workflow"
-```
-
-Les anciennes pages restent récupérables dans l'historique Git (`git show HEAD~1:index.html`). Le CV `about/CV.pdf` est conservé.
-
-### Étape 2 — Basculer GitHub Pages sur le workflow, puis pousser
-
-1. Sur GitHub, dépôt `garryterii.github.io` : **Settings > Pages > Build and deployment > Source = GitHub Actions**.
-2. Pousser :
-   ```bash
-   git push
-   ```
-3. Onglet **Actions** : le workflow « Publier le site » tourne 2 à 3 minutes. Quand il est vert, recharger https://garryterii.github.io (Ctrl+F5).
-
-Entre le changement de réglage et la fin du workflow, le site peut être indisponible quelques minutes.
-
-Si le workflow échoue, ouvrir l'étape en rouge dans l'onglet Actions et copier le message d'erreur : c'est le plus utile pour corriger.
-
-### Étape 3 — Installer et tester sur le nouvel ordinateur
-
-Suivre [01-INSTALLATION-PC.md](01-INSTALLATION-PC.md), cloner le dépôt, puis `quarto preview`. Relire les deux billets et les pages ; ajuster le texte d'accueil et la liste « Cours actuels » de `teaching/index.qmd`.
-
-### Étape 4 — Publier le premier billet
-
-Retirer la ligne `draft: true` du billet validé, `git commit`, `git push`.
+- Relire la page `descente-un-pas` : encadré « Prototype » en haut de page, libellé « AUTEUR·RICE » affiché par Quarto.
+- Relire le texte d'accueil et la liste « Cours actuels » de `teaching/index.qmd`.
+- Relire les deux billets en brouillon (`quarto preview`), puis publier le premier : retirer `draft: true`, `git commit`, `git push`.
+- Facultatif : export automatique de `refs.bib` depuis Zotero.
 
 ## Liste de contrôle
 
-- [x] Workflow déplacé dans `.github/workflows/`
-- [ ] Étape 1 : correction polyfill et retrait de l'ancien site validés (commits)
-- [ ] Étape 2 : Pages en mode GitHub Actions, push, site en ligne vérifié
-- [ ] Étape 3 : outils installés sur le nouveau PC, `quarto preview` vérifié
+- [x] Workflow dans `.github/workflows/`
+- [x] Correction polyfill et retrait de l'ancien site (commits `09e876c`, `1cc6922`)
+- [x] Pages en mode GitHub Actions, push, site en ligne vérifié (21/10)
+- [x] Outils installés sur le PC fixe, rendu local vérifié (30/10)
+- [x] Première page compagnon publiée (30/10)
 - [ ] Texte d'accueil et enseignements relus
+- [ ] Encadré « Prototype » de `descente-un-pas` relu
 - [ ] Zotero : export automatique de `refs.bib` (facultatif)
-- [ ] Étape 4 : premier billet publié
+- [ ] Premier billet publié
 
 ## Pistes pour la suite
 
